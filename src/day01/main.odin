@@ -29,8 +29,8 @@ parse_input :: proc(input: string, allocator := context.allocator) -> Input {
 		commands = make([dynamic]Command, allocator),
 	}
 
-	input := strings.trim_space(input)
-	lines, lines_err := strings.split_lines(input)
+	input_trimmed := strings.trim_space(input)
+	lines, lines_err := strings.split_lines(input_trimmed)
 	defer delete(lines)
 
 	if lines_err != nil {
@@ -70,22 +70,18 @@ START_NUMBER :: 50
 TOTAL_NUMBERS :: 100
 
 part1 :: proc(input: string) -> Part1Result {
-	input := parse_input(input)
-	defer delete_input(&input)
+	parsed := parse_input(input)
+	defer delete_input(&parsed)
 
 	dial := START_NUMBER
 	count := 0
 
-	for command in input.commands {
+	for command in parsed.commands {
 		switch command.type {
 		case .Left:
-			{
-				dial -= command.count
-			}
+			dial -= command.count
 		case .Right:
-			{
-				dial += command.count
-			}
+			dial += command.count
 		}
 
 		dial %= TOTAL_NUMBERS
@@ -99,13 +95,13 @@ part1 :: proc(input: string) -> Part1Result {
 
 
 part2 :: proc(input: string) -> Part2Result {
-	input := parse_input(input)
-	defer delete_input(&input)
+	parsed := parse_input(input)
+	defer delete_input(&parsed)
 
 	dial := START_NUMBER
 	count := 0
 
-	for command in input.commands {
+	for command in parsed.commands {
 		switch command.type {
 		case .Left:
 			{
