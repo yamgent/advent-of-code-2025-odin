@@ -48,11 +48,12 @@ parse_input :: proc(input: string, allocator := context.allocator) -> Input {
 
 		type: CommandType
 
-		if dir == 'L' {
+		switch dir {
+		case 'L':
 			type = .Left
-		} else if dir == 'R' {
+		case 'R':
 			type = .Right
-		} else {
+		case:
 			panic("invalid direction")
 		}
 
