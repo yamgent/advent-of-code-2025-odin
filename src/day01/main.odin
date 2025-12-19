@@ -8,11 +8,9 @@ import "core:testing"
 ACTUAL_INPUT :: #load("../../actual_inputs/2025/01/input.txt", string)
 
 part1 :: proc(input: string) -> string {
-	// TODO: from tests output, seems like leaks a lot of memory?
-
 	input := strings.trim_space(input)
 	lines, lines_err := strings.split_lines(input)
-	defer
+	defer delete(lines)
 
 	if lines_err != nil {
 		panic("cannot split lines")
@@ -45,6 +43,7 @@ part1 :: proc(input: string) -> string {
 	}
 
 	result_builder := strings.builder_make()
+	defer strings.builder_destroy(&result_builder)
 	return fmt.sbprintf(&result_builder, "%i", count)
 }
 
