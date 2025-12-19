@@ -63,11 +63,14 @@ delete_input :: proc(input: ^Input) {
 	delete(input.commands)
 }
 
+START_NUMBER :: 50
+TOTAL_NUMBERS :: 100
+
 part1 :: proc(input: string) -> string {
 	input := parse_input(input)
 	defer delete_input(&input)
 
-	dial := 50
+	dial := START_NUMBER
 	count := 0
 
 	for command in input.commands {
@@ -82,7 +85,7 @@ part1 :: proc(input: string) -> string {
 			}
 		}
 
-		dial %= 100
+		dial %= TOTAL_NUMBERS
 		if dial == 0 {
 			count += 1
 		}
@@ -94,8 +97,41 @@ part1 :: proc(input: string) -> string {
 	return fmt.sbprintf(&result_builder, "%i", count)
 }
 
+
 part2 :: proc(input: string) -> string {
-	return ""
+	input := parse_input(input)
+	defer delete_input(&input)
+
+	dial := START_NUMBER
+	count := 0
+
+	for command in input.commands {
+		switch command.type {
+		case .Left:
+			{
+				if dial == command.count {
+					count += 1
+				} else if dial < command.count {
+					remaining := command.count - dial
+					if dial != 0 {
+						count += 1
+					}
+					count += remaining / TOTAL_NUMBERS
+				}
+				dial = (dial - command.count) %% TOTAL_NUMBERS
+			}
+		case .Right:
+			{
+				count += (dial + command.count) / TOTAL_NUMBERS
+				dial = (dial + command.count) %% TOTAL_NUMBERS
+			}
+		}
+	}
+
+	result_builder := strings.builder_make()
+	defer strings.builder_destroy(&result_builder)
+	// TODO: is this use-after-free?
+	return fmt.sbprintf(&result_builder, "%i", count)
 }
 
 main :: proc() {
@@ -118,6 +154,23 @@ test_part1_actual :: proc(t: ^testing.T) {
 @(test)
 test_part2_sample :: proc(t: ^testing.T) {
 	testing.expect_value(t, part2(SAMPLE_INPUT), "6")
+}
+
+@(test)
+test_part2_additional :: proc(t: ^testing.T) {
+	testing.expect_value(t, part2("L50"), "1")
+	testing.expect_value(t, part2("L50\nL99"), "1")
+	testing.expect_value(t, part2("L50\nL100"), "2")
+	testing.expect_value(t, part2("L50\nL101"), "2")
+	testing.expect_value(t, part2("L50\nL199"), "2")
+	testing.expect_value(t, part2("L50\nL200"), "3")
+	testing.expect_value(t, part2("L50\nL201"), "3")
+	testing.expect_value(t, part2("L50\nR99"), "1")
+	testing.expect_value(t, part2("L50\nR100"), "2")
+	testing.expect_value(t, part2("L50\nR101"), "2")
+	testing.expect_value(t, part2("L50\nR199"), "2")
+	testing.expect_value(t, part2("L50\nR200"), "3")
+	testing.expect_value(t, part2("L50\nR201"), "3")
 }
 
 @(test)
