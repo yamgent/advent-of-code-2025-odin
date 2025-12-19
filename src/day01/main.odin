@@ -7,6 +7,9 @@ import "core:testing"
 
 ACTUAL_INPUT :: #load("../../actual_inputs/2025/01/input.txt", string)
 
+Part1Result :: int
+Part2Result :: int
+
 CommandType :: enum {
 	Left,
 	Right,
@@ -66,7 +69,7 @@ delete_input :: proc(input: ^Input) {
 START_NUMBER :: 50
 TOTAL_NUMBERS :: 100
 
-part1 :: proc(input: string) -> string {
+part1 :: proc(input: string) -> Part1Result {
 	input := parse_input(input)
 	defer delete_input(&input)
 
@@ -91,14 +94,11 @@ part1 :: proc(input: string) -> string {
 		}
 	}
 
-	result_builder := strings.builder_make()
-	defer strings.builder_destroy(&result_builder)
-	// TODO: is this use-after-free?
-	return fmt.sbprintf(&result_builder, "%i", count)
+	return count
 }
 
 
-part2 :: proc(input: string) -> string {
+part2 :: proc(input: string) -> Part2Result {
 	input := parse_input(input)
 	defer delete_input(&input)
 
@@ -128,10 +128,7 @@ part2 :: proc(input: string) -> string {
 		}
 	}
 
-	result_builder := strings.builder_make()
-	defer strings.builder_destroy(&result_builder)
-	// TODO: is this use-after-free?
-	return fmt.sbprintf(&result_builder, "%i", count)
+	return count
 }
 
 main :: proc() {
@@ -143,37 +140,37 @@ SAMPLE_INPUT :: #load("sample.txt", string)
 
 @(test)
 test_part1_sample :: proc(t: ^testing.T) {
-	testing.expect_value(t, part1(SAMPLE_INPUT), "3")
+	testing.expect_value(t, part1(SAMPLE_INPUT), 3)
 }
 
 @(test)
 test_part1_actual :: proc(t: ^testing.T) {
-	testing.expect_value(t, part1(ACTUAL_INPUT), "1066")
+	testing.expect_value(t, part1(ACTUAL_INPUT), 1066)
 }
 
 @(test)
 test_part2_sample :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2(SAMPLE_INPUT), "6")
+	testing.expect_value(t, part2(SAMPLE_INPUT), 6)
 }
 
 @(test)
 test_part2_additional :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2("L50"), "1")
-	testing.expect_value(t, part2("L50\nL99"), "1")
-	testing.expect_value(t, part2("L50\nL100"), "2")
-	testing.expect_value(t, part2("L50\nL101"), "2")
-	testing.expect_value(t, part2("L50\nL199"), "2")
-	testing.expect_value(t, part2("L50\nL200"), "3")
-	testing.expect_value(t, part2("L50\nL201"), "3")
-	testing.expect_value(t, part2("L50\nR99"), "1")
-	testing.expect_value(t, part2("L50\nR100"), "2")
-	testing.expect_value(t, part2("L50\nR101"), "2")
-	testing.expect_value(t, part2("L50\nR199"), "2")
-	testing.expect_value(t, part2("L50\nR200"), "3")
-	testing.expect_value(t, part2("L50\nR201"), "3")
+	testing.expect_value(t, part2("L50"), 1)
+	testing.expect_value(t, part2("L50\nL99"), 1)
+	testing.expect_value(t, part2("L50\nL100"), 2)
+	testing.expect_value(t, part2("L50\nL101"), 2)
+	testing.expect_value(t, part2("L50\nL199"), 2)
+	testing.expect_value(t, part2("L50\nL200"), 3)
+	testing.expect_value(t, part2("L50\nL201"), 3)
+	testing.expect_value(t, part2("L50\nR99"), 1)
+	testing.expect_value(t, part2("L50\nR100"), 2)
+	testing.expect_value(t, part2("L50\nR101"), 2)
+	testing.expect_value(t, part2("L50\nR199"), 2)
+	testing.expect_value(t, part2("L50\nR200"), 3)
+	testing.expect_value(t, part2("L50\nR201"), 3)
 }
 
 @(test)
 test_part2_actual :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2(ACTUAL_INPUT), "6223")
+	testing.expect_value(t, part2(ACTUAL_INPUT), 6223)
 }
