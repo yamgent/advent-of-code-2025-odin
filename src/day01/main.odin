@@ -90,6 +90,7 @@ part1 :: proc(input: string) -> string {
 
 	result_builder := strings.builder_make()
 	defer strings.builder_destroy(&result_builder)
+	// TODO: is this use-after-free?
 	return fmt.sbprintf(&result_builder, "%i", count)
 }
 
@@ -116,10 +117,10 @@ test_part1_actual :: proc(t: ^testing.T) {
 
 @(test)
 test_part2_sample :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2(SAMPLE_INPUT), "")
+	testing.expect_value(t, part2(SAMPLE_INPUT), "6")
 }
 
 @(test)
 test_part2_actual :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2(ACTUAL_INPUT), "")
+	testing.expect_value(t, part2(ACTUAL_INPUT), "6223")
 }
