@@ -121,8 +121,58 @@ part1 :: proc(input: string) -> Part1Result {
 	return result
 }
 
+split_number :: proc(num: int, total_parts: int) -> ([20]int, bool) {
+	result := [20]int{}
+
+	total_digits := count_digits(num)
+	if total_digits % total_parts != 0 {
+		return result, false
+	}
+
+	part_total_digits := total_digits / total_parts
+
+	acc := num
+	remaining_digits := total_digits
+	for i in 0 ..< total_digits {
+		digit := acc % 10
+		acc /= 10
+
+		part_idx := i / part_total_digits
+		result[part_idx] += digit * int(math.pow10_f64(f64(i - part_idx * part_total_digits)))
+	}
+
+	return result, true
+}
+
 part2 :: proc(input: string) -> Part2Result {
-	return 0
+	parsed := parse_input(input)
+	defer destroy_input(&parsed)
+
+	result := 0
+
+	for range in parsed.ranges {
+		each_number: for num in range.start ..= range.end {
+			total_digits := count_digits(num)
+
+			each_total_parts: for total_parts in 2 ..= total_digits {
+				split, split_success := split_number(num, total_parts)
+				if !split_success {
+					continue each_total_parts
+				}
+
+				for i in 1 ..< total_parts {
+					if split[0] != split[i] {
+						continue each_total_parts
+					}
+				}
+
+				result += num
+				continue each_number
+			}
+		}
+	}
+
+	return result
 }
 
 main :: proc() {
@@ -144,10 +194,10 @@ test_part1_actual :: proc(t: ^testing.T) {
 
 @(test)
 test_part2_sample :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2(SAMPLE_INPUT), 0)
+	testing.expect_value(t, part2(SAMPLE_INPUT), 4174379265)
 }
 
 @(test)
 test_part2_actual :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2(ACTUAL_INPUT), 0)
+	testing.expect_value(t, part2(ACTUAL_INPUT), 22617871034)
 }
