@@ -1,4 +1,4 @@
-package day01
+package aoc
 
 import "core:fmt"
 import "core:strconv"
