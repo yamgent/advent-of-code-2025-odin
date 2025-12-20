@@ -21,7 +21,7 @@ main :: proc() {
 	fmt.println(part2(ACTUAL_INPUT))
 }
 
-SAMPLE_INPUT :: #load("sample.txt", string)
+SAMPLE_INPUT :: ``
 
 @(test)
 test_part1_sample :: proc(t: ^testing.T) {

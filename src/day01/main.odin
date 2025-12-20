@@ -133,7 +133,18 @@ main :: proc() {
 	fmt.println(part2(ACTUAL_INPUT))
 }
 
-SAMPLE_INPUT :: #load("sample.txt", string)
+SAMPLE_INPUT :: `
+L68
+L30
+R48
+L5
+R60
+L55
+L1
+L99
+R14
+L82
+`
 
 @(test)
 test_part1_sample :: proc(t: ^testing.T) {
