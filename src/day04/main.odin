@@ -43,8 +43,8 @@ parse_input :: proc(input: string, allocator := context.allocator) -> World {
 	return world
 }
 
-count_neighbours :: proc(grid: map[[2]int]struct{}, coord: [2]int) -> int {
-	neighbours := [?][2]int {
+get_adjacents :: proc(coord: [2]int) -> [8][2]int {
+	return {
 		{coord.x - 1, coord.y - 1},
 		{coord.x, coord.y - 1},
 		{coord.x + 1, coord.y - 1},
@@ -54,11 +54,14 @@ count_neighbours :: proc(grid: map[[2]int]struct{}, coord: [2]int) -> int {
 		{coord.x, coord.y + 1},
 		{coord.x + 1, coord.y + 1},
 	}
+}
 
+count_neighbours :: proc(grid: map[[2]int]struct{}, coord: [2]int) -> int {
+	candidates := get_adjacents(coord)
 	count := 0
 
-	for neighbour in neighbours {
-		if _, exists := grid[neighbour]; exists {
+	for candidate in candidates {
+		if _, exists := grid[candidate]; exists {
 			count += 1
 		}
 	}
@@ -87,7 +90,52 @@ part1 :: proc(input: string) -> Part1Result {
 }
 
 part2 :: proc(input: string) -> Part2Result {
-	return 0
+	world := parse_input(input)
+	defer free_world(&world)
+
+	count := 0
+
+	paper_roll_to_process := make(map[[2]int]struct{})
+	defer delete(paper_roll_to_process)
+	paper_roll_to_delete := make(map[[2]int]struct{})
+	defer delete(paper_roll_to_delete)
+	next_rolls := make(map[[2]int]struct{})
+	defer delete(next_rolls)
+
+	for coord in world.grid {
+		paper_roll_to_process[coord] = {}
+	}
+
+	for len(paper_roll_to_process) > 0 {
+		clear(&next_rolls)
+		clear(&paper_roll_to_delete)
+
+		for roll in paper_roll_to_process {
+			neighbours_count := count_neighbours(world.grid, roll)
+			if neighbours_count < 4 {
+				count += 1
+				paper_roll_to_delete[roll] = {}
+
+				potential_neighbours := get_adjacents(roll)
+				for candidate in potential_neighbours {
+					if _, exists := world.grid[candidate]; exists {
+						next_rolls[candidate] = {}
+					}
+				}
+			}
+		}
+
+		for roll in paper_roll_to_delete {
+			delete_key(&world.grid, roll)
+			delete_key(&next_rolls, roll)
+		}
+
+		temp := paper_roll_to_process
+		paper_roll_to_process = next_rolls
+		next_rolls = temp
+	}
+
+	return count
 }
 
 main :: proc() {
@@ -120,10 +168,10 @@ test_part1_actual :: proc(t: ^testing.T) {
 
 @(test)
 test_part2_sample :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2(SAMPLE_INPUT), 0)
+	testing.expect_value(t, part2(SAMPLE_INPUT), 43)
 }
 
 @(test)
 test_part2_actual :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2(ACTUAL_INPUT), 0)
+	testing.expect_value(t, part2(ACTUAL_INPUT), 8910)
 }
