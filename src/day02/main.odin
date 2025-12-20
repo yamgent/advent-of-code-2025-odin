@@ -43,13 +43,13 @@ parse_input :: proc(input: string) -> Input {
 			panic("cannot split parts")
 		}
 
-		start, start_err := strconv.parse_int(parts[0], 10)
-		if !start_err {
+		start, start_ok := strconv.parse_int(parts[0], 10)
+		if !start_ok {
 			panic("fail to parse start")
 		}
 
-		end, end_err := strconv.parse_int(parts[1], 10)
-		if !end_err {
+		end, end_ok := strconv.parse_int(parts[1], 10)
+		if !end_ok {
 			panic("fail to parse start")
 		}
 
