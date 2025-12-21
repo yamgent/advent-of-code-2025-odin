@@ -40,17 +40,17 @@ parse_input :: proc(input: string) -> Input {
 	for entry in entries {
 		parts, parts_err := strings.split(entry, "-", arena_allocator)
 		if parts_err != nil {
-			panic("cannot split parts")
+			panic(fmt.tprintf("cannot split parts in entry %v", entry))
 		}
 
 		start, start_ok := strconv.parse_int(parts[0], 10)
 		if !start_ok {
-			panic("fail to parse start")
+			panic(fmt.tprintf("fail to parse start %v in %v", parts[0], entry))
 		}
 
 		end, end_ok := strconv.parse_int(parts[1], 10)
 		if !end_ok {
-			panic("fail to parse start")
+			panic(fmt.tprintf("fail to parse end %v in %v", parts[1], entry))
 		}
 
 		range := Range{start, end}

@@ -43,7 +43,7 @@ parse_input :: proc(input: string, allocator := context.allocator) -> Input {
 		num_str := line[1:]
 		num, num_ok := strconv.parse_int(num_str, 10)
 		if !num_ok {
-			panic("expected number")
+			panic(fmt.tprintf("expected number, found %v in %v", num_str, line))
 		}
 
 		type: CommandType
@@ -54,7 +54,7 @@ parse_input :: proc(input: string, allocator := context.allocator) -> Input {
 		case 'R':
 			type = .Right
 		case:
-			panic("invalid direction")
+			panic(fmt.tprintf("invalid direction, found %v in %v", dir, line))
 		}
 
 		append(&result.commands, Command{type = type, count = num})
