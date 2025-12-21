@@ -1,6 +1,7 @@
 package aoc
 
 import "core:fmt"
+import "core:sort"
 import "core:strconv"
 import "core:strings"
 import "core:testing"
@@ -98,8 +99,52 @@ part1 :: proc(input: string) -> Part1Result {
 	return count
 }
 
+compare_range :: proc(a, b: Range) -> int {
+	switch delta := a.start - b.start; {
+	case delta < 0:
+		return -1
+	case delta > 0:
+		return 1
+	case:
+		switch delta_2 := a.end - b.end; {
+		case delta_2 < 0:
+			return -1
+		case delta_2 > 0:
+			return 1
+		case:
+			return 0
+		}
+	}
+}
+
 part2 :: proc(input: string) -> Part2Result {
-	return 0
+	list := parse_input(input)
+	defer delete_input(&list)
+
+	sort.quick_sort_proc(list.ranges[:], compare_range)
+
+	new_ranges := make([dynamic]Range)
+	defer delete(new_ranges)
+
+	for range in list.ranges {
+		if len(new_ranges) > 0 && new_ranges[len(new_ranges) - 1].end >= range.start {
+			new_range := Range {
+				start = min(new_ranges[len(new_ranges) - 1].start, range.start),
+				end   = max(new_ranges[len(new_ranges) - 1].end, range.end),
+			}
+			new_ranges[len(new_ranges) - 1] = new_range
+		} else {
+			append(&new_ranges, range)
+		}
+	}
+
+	sum := 0
+
+	for range in new_ranges {
+		sum += range.end - range.start + 1
+	}
+
+	return sum
 }
 
 main :: proc() {
@@ -133,10 +178,10 @@ test_part1_actual :: proc(t: ^testing.T) {
 
 @(test)
 test_part2_sample :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2(SAMPLE_INPUT), 0)
+	testing.expect_value(t, part2(SAMPLE_INPUT), 14)
 }
 
 @(test)
 test_part2_actual :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2(ACTUAL_INPUT), 0)
+	testing.expect_value(t, part2(ACTUAL_INPUT), 332998283036769)
 }
