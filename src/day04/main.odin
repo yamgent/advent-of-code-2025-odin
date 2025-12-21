@@ -18,7 +18,7 @@ make_world :: proc(allocator := context.allocator) -> World {
 	return World{grid = make(map[[2]int]struct{}, allocator), size = {}}
 }
 
-free_world :: proc(world: ^World) {
+delete_world :: proc(world: ^World) {
 	delete(world.grid)
 }
 
@@ -71,7 +71,7 @@ count_neighbours :: proc(grid: map[[2]int]struct{}, coord: [2]int) -> int {
 
 part1 :: proc(input: string) -> Part1Result {
 	world := parse_input(input)
-	defer free_world(&world)
+	defer delete_world(&world)
 
 	count := 0
 
@@ -91,7 +91,7 @@ part1 :: proc(input: string) -> Part1Result {
 
 part2 :: proc(input: string) -> Part2Result {
 	world := parse_input(input)
-	defer free_world(&world)
+	defer delete_world(&world)
 
 	count := 0
 
