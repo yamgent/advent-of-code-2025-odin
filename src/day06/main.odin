@@ -83,8 +83,73 @@ part1 :: proc(input: string) -> Part1Result {
 	return acc
 }
 
+Vals :: struct {
+	op:    Op,
+	start: int,
+	end:   int,
+	val:   int,
+}
+
 part2 :: proc(input: string) -> Part2Result {
-	return 0
+	input_trimmed := strings.trim_space(input)
+	lines, lines_err := strings.split_lines(input_trimmed)
+	defer delete(lines)
+
+	if lines_err != nil {
+		panic("cannot split lines")
+	}
+
+	vals := make([dynamic]Vals)
+	defer delete(vals)
+
+	for ch, idx in lines[len(lines) - 1] {
+		if ch == '+' || ch == '*' {
+			if len(vals) > 0 {
+				vals[len(vals) - 1].end = idx - 2
+			}
+
+			switch ch {
+			case '+':
+				append(&vals, Vals{op = .Plus, start = idx, end = idx, val = 0})
+			case '*':
+				append(&vals, Vals{op = .Mul, start = idx, end = idx, val = 1})
+			}
+		}
+	}
+
+	furthest_x := len(lines[0])
+	for line in lines {
+		furthest_x = max(furthest_x, len(line))
+	}
+
+	vals[len(vals) - 1].end = furthest_x - 1
+
+	for &val in vals {
+		for x := val.end; x >= val.start; x -= 1 {
+			current_number := 0
+
+			for y := 0; y < len(lines) - 1; y += 1 {
+				ch := lines[y][x]
+				if ch != ' ' {
+					current_number = current_number * 10 + (int(ch) - int('0'))
+				}
+			}
+
+			switch val.op {
+			case .Plus:
+				val.val += current_number
+			case .Mul:
+				val.val *= current_number
+			}
+		}
+	}
+
+	acc := 0
+	for val in vals {
+		acc += val.val
+	}
+
+	return acc
 }
 
 main :: proc() {
@@ -111,10 +176,10 @@ test_part1_actual :: proc(t: ^testing.T) {
 
 @(test)
 test_part2_sample :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2(SAMPLE_INPUT), 0)
+	testing.expect_value(t, part2(SAMPLE_INPUT), 3263827)
 }
 
 @(test)
 test_part2_actual :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2(ACTUAL_INPUT), 0)
+	testing.expect_value(t, part2(ACTUAL_INPUT), 9581313737063)
 }
