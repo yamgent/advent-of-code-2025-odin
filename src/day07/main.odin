@@ -93,9 +93,7 @@ solve :: proc(input: string) -> (Part1Result, Part2Result) {
 				}
 			}
 
-			temp := current_xs
-			current_xs = next_xs
-			next_xs = temp
+			current_xs, next_xs = next_xs, current_xs
 		}
 
 		current_y += 1

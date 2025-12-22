@@ -130,9 +130,7 @@ part2 :: proc(input: string) -> Part2Result {
 			delete_key(&next_rolls, roll)
 		}
 
-		temp := paper_roll_to_process
-		paper_roll_to_process = next_rolls
-		next_rolls = temp
+		paper_roll_to_process, next_rolls = next_rolls, paper_roll_to_process
 	}
 
 	return count

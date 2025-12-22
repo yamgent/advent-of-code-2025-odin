@@ -92,9 +92,7 @@ solve_joltage_p2 :: proc(num: string, total_size: int) -> int {
 			append(&next_max_so_far, max(candidate, next_max_so_far[i - s]))
 		}
 
-		temp := current_max_so_far
-		current_max_so_far = next_max_so_far
-		next_max_so_far = temp
+		current_max_so_far, next_max_so_far = next_max_so_far, current_max_so_far
 	}
 
 	return current_max_so_far[len(current_max_so_far) - 1]
