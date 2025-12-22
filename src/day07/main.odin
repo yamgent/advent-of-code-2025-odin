@@ -65,31 +65,31 @@ delete_world :: proc(world: ^World) {
 	delete(world.splitters)
 }
 
-part1 :: proc(input: string) -> Part1Result {
+solve :: proc(input: string) -> (Part1Result, Part2Result) {
 	world := parse_input(input)
 	defer delete_world(&world)
 
 	hit := 0
 
-	current_xs := make(map[int]struct{})
+	current_xs := make(map[int]int)
 	defer delete(current_xs)
-	next_xs := make(map[int]struct{})
+	next_xs := make(map[int]int)
 	defer delete(next_xs)
 
-	current_xs[world.start_x] = {}
+	current_xs[world.start_x] = 1
 	current_y := 1
 
 	for current_y < world.end_y {
 		if current_splitters, have_splitters := world.splitters[current_y]; have_splitters {
 			clear(&next_xs)
 
-			for x in current_xs {
+			for x, x_beams in current_xs {
 				if _, have_splitter := current_splitters[x]; have_splitter {
 					hit += 1
-					next_xs[x - 1] = {}
-					next_xs[x + 1] = {}
+					next_xs[x - 1] += x_beams
+					next_xs[x + 1] += x_beams
 				} else {
-					next_xs[x] = {}
+					next_xs[x] += x_beams
 				}
 			}
 
@@ -101,11 +101,22 @@ part1 :: proc(input: string) -> Part1Result {
 		current_y += 1
 	}
 
-	return hit
+	total_beams := 0
+	for _, beams in current_xs {
+		total_beams += beams
+	}
+
+	return hit, total_beams
+}
+
+part1 :: proc(input: string) -> Part1Result {
+	ans, _ := solve(input)
+	return ans
 }
 
 part2 :: proc(input: string) -> Part2Result {
-	return 0
+	_, ans := solve(input)
+	return ans
 }
 
 main :: proc() {
@@ -144,10 +155,10 @@ test_part1_actual :: proc(t: ^testing.T) {
 
 @(test)
 test_part2_sample :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2(SAMPLE_INPUT), 0)
+	testing.expect_value(t, part2(SAMPLE_INPUT), 40)
 }
 
 @(test)
 test_part2_actual :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2(ACTUAL_INPUT), 0)
+	testing.expect_value(t, part2(ACTUAL_INPUT), 80158285728929)
 }
