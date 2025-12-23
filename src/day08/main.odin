@@ -116,12 +116,11 @@ uf_delete :: proc(uf: ^UnionFind) {
 	delete(uf.size)
 }
 
-part1 :: proc(input: string, connect_count: int) -> Part1Result {
-	boxes := parse_input(input)
-	defer delete(boxes)
-
-	distances := make([dynamic]Distance)
-	defer delete(distances)
+make_distances_binary_heap :: proc(
+	boxes: [dynamic][3]int,
+	allocator := context.allocator,
+) -> [dynamic]Distance {
+	distances := make([dynamic]Distance, allocator)
 
 	for ai := 0; ai < len(boxes); ai += 1 {
 		for bi := ai + 1; bi < len(boxes); bi += 1 {
@@ -130,6 +129,16 @@ part1 :: proc(input: string, connect_count: int) -> Part1Result {
 	}
 
 	heap.make(distances[:], heap_dist_less)
+
+	return distances
+}
+
+part1 :: proc(input: string, connect_count: int) -> Part1Result {
+	boxes := parse_input(input)
+	defer delete(boxes)
+
+	distances := make_distances_binary_heap(boxes)
+	defer delete(distances)
 
 	ufs := uf_init(len(boxes))
 	defer uf_delete(&ufs)
@@ -170,16 +179,8 @@ part2 :: proc(input: string) -> Part2Result {
 	boxes := parse_input(input)
 	defer delete(boxes)
 
-	distances := make([dynamic]Distance)
+	distances := make_distances_binary_heap(boxes)
 	defer delete(distances)
-
-	for ai := 0; ai < len(boxes); ai += 1 {
-		for bi := ai + 1; bi < len(boxes); bi += 1 {
-			append(&distances, Distance{dist = get_dist(boxes[ai], boxes[bi]), a = ai, b = bi})
-		}
-	}
-
-	heap.make(distances[:], heap_dist_less)
 
 	ufs := uf_init(len(boxes))
 	defer uf_delete(&ufs)
