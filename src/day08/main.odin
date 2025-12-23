@@ -167,7 +167,41 @@ part1 :: proc(input: string, connect_count: int) -> Part1Result {
 }
 
 part2 :: proc(input: string) -> Part2Result {
-	return 0
+	boxes := parse_input(input)
+	defer delete(boxes)
+
+	distances := make([dynamic]Distance)
+	defer delete(distances)
+
+	for ai := 0; ai < len(boxes); ai += 1 {
+		for bi := ai + 1; bi < len(boxes); bi += 1 {
+			append(&distances, Distance{dist = get_dist(boxes[ai], boxes[bi]), a = ai, b = bi})
+		}
+	}
+
+	heap.make(distances[:], heap_dist_less)
+
+	ufs := uf_init(len(boxes))
+	defer uf_delete(&ufs)
+
+	used := make(map[[3]int]struct{})
+	defer delete(used)
+
+	for {
+		next_distance := distances[0]
+
+		uf_union(&ufs, next_distance.a, next_distance.b)
+
+		used[next_distance.a] = {}
+		used[next_distance.b] = {}
+
+		heap.pop(distances[:], heap_dist_less)
+		pop(&distances)
+
+		if len(used) == len(boxes) {
+			return boxes[next_distance.a].x * boxes[next_distance.b].x
+		}
+	}
 }
 
 main :: proc() {
@@ -210,10 +244,10 @@ test_part1_actual :: proc(t: ^testing.T) {
 
 @(test)
 test_part2_sample :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2(SAMPLE_INPUT), 0)
+	testing.expect_value(t, part2(SAMPLE_INPUT), 25272)
 }
 
 @(test)
 test_part2_actual :: proc(t: ^testing.T) {
-	testing.expect_value(t, part2(ACTUAL_INPUT), 0)
+	testing.expect_value(t, part2(ACTUAL_INPUT), 2185817796)
 }
